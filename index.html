@@ -1,424 +1,278 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sudoku | Prometheus Edition</title>
-    <style>
-        /* Color Palette and Variables */
-        :root {
-            --bg-cream: #FBE9D0;
-            --deep-teal: #244855;
-            --accent-orange: #E64833;
-            --dusty-brown: #874F41;
-            --muted-blue: #90AEAD;
-            --white: #ffffff;
-            
-            /* Background variables */
-            --s: 56px;
-            --g: 10px;
-            --c: #ECD078;
-            --_l: #0000 calc(33% - .866*var(--g)),var(--c) calc(33.2% - .866*var(--g)) 33%,#0000 34%;
-        }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Sudoku</title>
 
-        /* Animated Background Logic */
-        html {
-            height: 100%;
-            background: #0B486B;
-            overflow-x: hidden;
-        }
+<style>
+:root {
+  --bg: #f5f5f5;
+  --grid: #222;
+  --cell: #ffffff;
+  --primary: #4a90e2;
+  --text: #333;
+  --error: #ff6b6b;
+}
 
-        html:before, body:before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: -1;
-            background:
-                repeating-linear-gradient(var(--c) 0 var(--g), #0000 0 50%)
-                0 calc(.866*var(--s) - var(--g)/2),
-                conic-gradient(from -150deg at var(--g) 50%,var(--c) 120deg,#0000 0),
-                linear-gradient(-120deg,var(--_l)),linear-gradient( -60deg,var(--_l))
-                #0B486B;
-            background-size: var(--s) calc(3.466*var(--s));
-            animation: p infinite 2s linear;
-        }
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+}
 
-        body:before {
-            -webkit-mask: 
-                linear-gradient(#000 50%,#0000 0) 
-                0 calc(.866*var(--s))/100% calc(3.466*var(--s));
-            animation-direction: reverse;
-        }
+h1 {
+  margin-bottom: 10px;
+  color: var(--text);
+}
 
-        @keyframes p {
-            to { background-position-x: calc(-1*var(--s)); }
-        }
+.controls {
+  margin-bottom: 20px;
+}
 
-        * {
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
+button {
+  padding: 8px 16px;
+  margin: 5px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  border-radius: 6px;
+}
 
-        body {
-            color: var(--deep-teal);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            position: relative;
-        }
+button:hover {
+  background: #eee;
+}
 
-        /* Hack Club Flag - Increased size (approx 5cm) */
-        .hc-flag {
-            position: absolute;
-            top: 0;
-            left: 15px;
-            border: 0;
-            width: 190px; /* Bigger logo */
-            z-index: 999;
-            transition: transform 0.3s ease;
-        }
-        
-        .hc-flag:hover {
-            transform: scale(1.05);
-        }
+button.active {
+  background: var(--primary);
+  color: white;
+}
 
-        header {
-            text-align: center;
-            margin-top: 100px; /* More space for the larger flag */
-            margin-bottom: 25px;
-            background: rgba(251, 233, 208, 0.95);
-            padding: 20px 40px;
-            border-radius: 60px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 2px solid var(--accent-orange);
-        }
+#grid {
+  display: grid;
+  grid-template-columns: repeat(9, 40px);
+  grid-template-rows: repeat(9, 40px);
+  border: 2px solid var(--grid);
+}
 
-        h1 {
-            font-size: 3rem;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            color: var(--accent-orange);
-        }
+.cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #ccc;
+  background: var(--cell);
+  cursor: pointer;
+  font-size: 18px;
+}
 
-        /* Pill Design Controls */
-        .controls {
-            margin-bottom: 25px;
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            background: rgba(255,255,255,0.25);
-            padding: 15px;
-            border-radius: 60px;
-            backdrop-filter: blur(8px);
-        }
+.cell:nth-child(3n) {
+  border-right: 2px solid var(--grid);
+}
 
-        button {
-            padding: 12px 28px;
-            border: none;
-            background: var(--white);
-            color: var(--deep-teal);
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            text-transform: uppercase;
-            border-radius: 50px;
-            box-shadow: 0 5px 0px var(--dusty-brown);
-            position: relative;
-            top: 0;
-            font-size: 0.9rem;
-        }
+.cell:nth-child(n+19):nth-child(-n+27),
+.cell:nth-child(n+46):nth-child(-n+54) {
+  border-bottom: 2px solid var(--grid);
+}
 
-        button:hover {
-            top: -3px;
-            box-shadow: 0 8px 0px var(--dusty-brown);
-            background: var(--bg-cream);
-        }
+.cell.fixed {
+  background: #ddd;
+  font-weight: bold;
+}
 
-        button:active {
-            top: 3px;
-            box-shadow: 0 0px 0px var(--dusty-brown);
-        }
+.cell.selected {
+  background: #cce5ff;
+}
 
-        button.active {
-            background: var(--accent-orange);
-            color: var(--white);
-            box-shadow: 0 5px 0px #a32a1b;
-        }
+.cell.error {
+  color: var(--error);
+}
 
-        /* Sudoku Grid */
-        #grid {
-            display: grid;
-            grid-template-columns: repeat(9, 50px);
-            grid-template-rows: repeat(9, 50px);
-            border: 6px solid var(--deep-teal);
-            background-color: var(--deep-teal);
-            gap: 1px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
-            border-radius: 12px;
-            overflow: hidden;
-        }
+.numpad {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  width: 200px;
+}
 
-        .cell {
-            width: 50px;
-            height: 50px;
-            background: var(--white);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.4rem;
-            cursor: pointer;
-            user-select: none;
-        }
-
-        /* Grid Borders */
-        .cell:nth-child(3n) { border-right: 4px solid var(--deep-teal); }
-        .cell:nth-child(9n) { border-right: none; }
-        .cell:nth-child(n+19):nth-child(-n+27),
-        .cell:nth-child(n+46):nth-child(-n+54) {
-            border-bottom: 4px solid var(--deep-teal);
-        }
-
-        .cell.fixed { background-color: #e8e8e8; color: var(--dusty-brown); font-weight: bold; }
-        .cell.selected { background-color: var(--muted-blue) !important; color: var(--white); }
-        .cell.error { color: var(--accent-orange); background-color: #ffdce0; }
-
-        /* Number Pad */
-        .numpad {
-            margin-top: 30px;
-            display: grid;
-            grid-template-columns: repeat(5, 1fr);
-            gap: 12px;
-            background: rgba(255,255,255,0.15);
-            padding: 20px;
-            border-radius: 30px;
-        }
-
-        footer {
-            margin-top: auto;
-            padding: 25px;
-            color: white;
-            font-weight: 900;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.7);
-            background: rgba(0,0,0,0.4);
-            width: 100%;
-            text-align: center;
-            letter-spacing: 1px;
-        }
-
-        /* Modal */
-        #win-card {
-            display: none;
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background: var(--white);
-            padding: 50px;
-            border: 12px solid var(--accent-orange);
-            text-align: center;
-            z-index: 1001;
-            box-shadow: 0 0 120px rgba(0,0,0,0.9);
-            border-radius: 40px;
-        }
-
-        .overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-        }
-
-        @media (max-width: 600px) {
-            #grid { grid-template-columns: repeat(9, 38px); grid-template-rows: repeat(9, 38px); }
-            .cell { width: 38px; height: 38px; font-size: 1.1rem; }
-            .hc-flag { width: 120px; }
-            header { margin-top: 70px; }
-        }
-    </style>
+footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #777;
+}
+</style>
 </head>
+
 <body>
 
-    <a href="https://hackclub.com/">
-        <img class="hc-flag" src="https://assets.hackclub.com/flag-orpheus-top.svg" alt="Hack Club"/>
-    </a>
+<h1>Sudoku</h1>
 
-    <header>
-        <h1>Sudoku</h1>
-        <p>Prometheus Edition</p>
-    </header>
+<div class="controls">
+  <button onclick="setDifficulty('easy')" id="btn-easy">Easy</button>
+  <button onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
+  <button onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
+  <button onclick="resetGame()">Reset</button>
+</div>
 
-    <div class="controls">
-        <button class="game-btn" onclick="setDifficulty('easy')" id="btn-easy">Easy</button>
-        <button class="game-btn" onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
-        <button class="game-btn" onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
-        <button class="game-btn" onclick="resetGame()">Reset</button>
-        <button class="game-btn" onclick="toggleMusic()" id="music-toggle">Music Off</button>
-    </div>
+<div id="grid"></div>
 
-    <div id="grid"></div>
+<div class="numpad">
+  <button onclick="inputNumber(1)">1</button>
+  <button onclick="inputNumber(2)">2</button>
+  <button onclick="inputNumber(3)">3</button>
+  <button onclick="inputNumber(4)">4</button>
+  <button onclick="inputNumber(5)">5</button>
+  <button onclick="inputNumber(6)">6</button>
+  <button onclick="inputNumber(7)">7</button>
+  <button onclick="inputNumber(8)">8</button>
+  <button onclick="inputNumber(9)">9</button>
+  <button onclick="inputNumber(0)">⌫</button>
+</div>
 
-    
+<footer>Simple Sudoku</footer>
 
-    <footer>
-        By Sadrita Neogi ( Hack Club )
-    </footer>
+<script>
+let selectedCell = null;
+let difficulty = "easy";
+let solution = [];
+let initialGrid = [];
 
-    <div class="overlay" id="overlay"></div>
-    <div id="win-card">
-        <h2>VICTORY!</h2>
-        <p>You have conquered the grid!</p><br>
-        <button class="game-btn" onclick="closeWinCard()">New Puzzle</button>
-    </div>
+function setDifficulty(level) {
+  difficulty = level;
+  document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  document.getElementById("btn-" + level).classList.add("active");
+  generateGame();
+}
 
-    <audio id="bg-audio" loop preload="auto">
-        <source src="songbg.mp3" type="audio/mpeg">
-    </audio>
-    <audio id="click-audio" preload="auto">
-        <source src="button.mp3" type="audio/mpeg">
-    </audio>
+function generateGame() {
+  solution = generateSolvedGrid();
+  let blanks = difficulty === "easy" ? 30 : difficulty === "medium" ? 45 : 55;
 
-    <script>
-        let selectedCell = null;
-        let difficulty = 'easy';
-        let solution = [];
-        let initialGrid = [];
-        
-        const audioBg = document.getElementById('bg-audio');
-        const audioClick = document.getElementById('click-audio');
-        let musicOn = false;
+  initialGrid = solution.map(row => [...row]);
 
-        // Play button sound on every button click
-        document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'BUTTON') {
-                audioClick.currentTime = 0;
-                audioClick.play().catch(err => console.log("Click sound blocked"));
-            }
-        });
+  let count = 0;
+  while (count < blanks) {
+    let r = Math.floor(Math.random() * 9);
+    let c = Math.floor(Math.random() * 9);
+    if (initialGrid[r][c] !== 0) {
+      initialGrid[r][c] = 0;
+      count++;
+    }
+  }
 
-        function toggleMusic() {
-            musicOn = !musicOn;
-            const btn = document.getElementById('music-toggle');
-            if (musicOn) {
-                audioBg.play().catch(e => console.log("Background audio blocked"));
-                btn.innerText = "Music On";
-                btn.classList.add('active');
-            } else {
-                audioBg.pause();
-                btn.innerText = "Music Off";
-                btn.classList.remove('active');
-            }
+  drawGrid();
+}
+
+function generateSolvedGrid() {
+  let grid = Array(9).fill().map(() => Array(9).fill(0));
+  solveGrid(grid);
+  return grid;
+}
+
+function solveGrid(grid) {
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      if (grid[r][c] === 0) {
+        let nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
+        for (let n of nums) {
+          if (isSafe(grid, r, c, n)) {
+            grid[r][c] = n;
+            if (solveGrid(grid)) return true;
+            grid[r][c] = 0;
+          }
         }
+        return false;
+      }
+    }
+  }
+  return true;
+}
 
-        function setDifficulty(level) {
-            difficulty = level;
-            document.querySelectorAll('.controls .game-btn').forEach(b => {
-                if(b.id !== 'music-toggle') b.classList.remove('active');
-            });
-            const target = document.getElementById('btn-' + level);
-            if(target) target.classList.add('active');
-            generateGame();
-        }
+function isSafe(grid, r, c, n) {
+  for (let i = 0; i < 9; i++)
+    if (grid[r][i] === n || grid[i][c] === n) return false;
 
-        function generateGame() {
-            solution = generateSolvedGrid();
-            let blanks = difficulty === 'easy' ? 32 : difficulty === 'medium' ? 46 : 56;
-            initialGrid = solution.map(row => [...row]);
-            
-            let count = 0;
-            while (count < blanks) {
-                let r = Math.floor(Math.random() * 9);
-                let c = Math.floor(Math.random() * 9);
-                if (initialGrid[r][c] !== 0) {
-                    initialGrid[r][c] = 0;
-                    count++;
-                }
-            }
-            drawGrid();
-        }
+  let rs = Math.floor(r/3)*3;
+  let cs = Math.floor(c/3)*3;
 
-        function generateSolvedGrid() {
-            let grid = Array(9).fill().map(() => Array(9).fill(0));
-            solveGrid(grid);
-            return grid;
-        }
+  for (let i = rs; i < rs+3; i++)
+    for (let j = cs; j < cs+3; j++)
+      if (grid[i][j] === n) return false;
 
-        function solveGrid(grid) {
-            for (let row = 0; row < 9; row++) {
-                for (let col = 0; col < 9; col++) {
-                    if (grid[row][col] === 0) {
-                        let nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
-                        for (let n of nums) {
-                            if (isSafe(grid, row, col, n)) {
-                                grid[row][col] = n;
-                                if (solveGrid(grid)) return true;
-                                grid[row][col] = 0;
-                            }
-                        }
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
+  return true;
+}
 
-                    }
-                    cell.id = `cell-${r}-${c}`;
-                    container.appendChild(cell);
-                }
-            }
-        }
+function drawGrid() {
+  const gridEl = document.getElementById("grid");
+  gridEl.innerHTML = "";
 
-        function inputNumber(num) {
-            if (!selectedCell) return;
-            if (num === 0) {
-                selectedCell.element.innerText = '';
-                selectedCell.element.classList.remove('error');
-            } else {
-                selectedCell.element.innerText = num;
-                if (num !== solution[selectedCell.row][selectedCell.col]) {
-                    selectedCell.element.classList.add('error');
-                } else {
-                    selectedCell.element.classList.remove('error');
-                    checkWin();
-                }
-            }
-        }
+  for (let r = 0; r < 9; r++) {
+    for (let c = 0; c < 9; c++) {
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
 
-        function checkWin() {
-            const cells = document.querySelectorAll('.cell');
-            let win = true;
-            cells.forEach(c => {
-                let parts = c.id.split('-');
-                let r = parseInt(parts[1]), col = parseInt(parts[2]);
-                if (parseInt(c.innerText) !== solution[r][col]) win = false;
-            });
-            if (win) {
-                document.getElementById('win-card').style.display = 'block';
-                document.getElementById('overlay').style.display = 'block';
-            }
-        }
+      if (initialGrid[r][c] !== 0) {
+        cell.innerText = initialGrid[r][c];
+        cell.classList.add("fixed");
+      } else {
+        cell.onclick = () => {
+          if (selectedCell) selectedCell.classList.remove("selected");
+          selectedCell = cell;
+          cell.classList.add("selected");
+        };
+      }
 
-        function resetGame() { generateGame(); }
-        
-        function closeWinCard() {
-            document.getElementById('win-card').style.display = 'none';
-            document.getElementById('overlay').style.display = 'none';
-            generateGame();
-        }
+      cell.id = `cell-${r}-${c}`;
+      gridEl.appendChild(cell);
+    }
+  }
+}
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key >= 1 && e.key <= 9) inputNumber(parseInt(e.key));
-            if (e.key === 'Backspace' || e.key === 'Delete') inputNumber(0);
-        });
+function inputNumber(num) {
+  if (!selectedCell) return;
 
-        setDifficulty('easy');
-    </script>
+  let [_, r, c] = selectedCell.id.split("-");
+  r = parseInt(r);
+  c = parseInt(c);
+
+  if (num === 0) {
+    selectedCell.innerText = "";
+    selectedCell.classList.remove("error");
+  } else {
+    selectedCell.innerText = num;
+    if (num !== solution[r][c]) {
+      selectedCell.classList.add("error");
+    } else {
+      selectedCell.classList.remove("error");
+      checkWin();
+    }
+  }
+}
+
+function checkWin() {
+  let cells = document.querySelectorAll(".cell");
+  for (let c of cells) {
+    let [_, r, col] = c.id.split("-");
+    if (parseInt(c.innerText) !== solution[r][col]) return;
+  }
+  alert("You Win!");
+}
+
+function resetGame() {
+  generateGame();
+}
+
+document.addEventListener("keydown", e => {
+  if (e.key >= 1 && e.key <= 9) inputNumber(parseInt(e.key));
+  if (e.key === "Backspace") inputNumber(0);
+});
+
+setDifficulty("easy");
+</script>
+
 </body>
 </html>
