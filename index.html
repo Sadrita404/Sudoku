@@ -13,6 +13,45 @@
             --dusty-brown: #874F41;
             --muted-blue: #90AEAD;
             --white: #ffffff;
+            
+            /* Background variables */
+            --s: 56px;
+            --g: 10px;
+            --c: #ECD078;
+            --_l: #0000 calc(33% - .866*var(--g)),var(--c) calc(33.2% - .866*var(--g)) 33%,#0000 34%;
+        }
+
+        /* Animated Background Logic */
+        html {
+            height: 100%;
+            background: #0B486B; /* Fallback second color */
+            overflow-x: hidden;
+        }
+
+        html:before, body:before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            background:
+                repeating-linear-gradient(var(--c) 0 var(--g), #0000 0 50%)
+                0 calc(.866*var(--s) - var(--g)/2),
+                conic-gradient(from -150deg at var(--g) 50%,var(--c) 120deg,#0000 0),
+                linear-gradient(-120deg,var(--_l)),linear-gradient( -60deg,var(--_l))
+                #0B486B;
+            background-size: var(--s) calc(3.466*var(--s));
+            animation: p infinite 2s linear;
+        }
+
+        body:before {
+            -webkit-mask: 
+                linear-gradient(#000 50%,#0000 0) 
+                0 calc(.866*var(--s))/100% calc(3.466*var(--s));
+            animation-direction: reverse;
+        }
+
+        @keyframes p {
+            to { background-position-x: calc(-1*var(--s)); }
         }
 
         * {
@@ -23,68 +62,95 @@
         }
 
         body {
-            background-color: var(--bg-cream);
             color: var(--deep-teal);
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
+            position: relative;
+        }
+
+        /* Hack Club Flag - approx 3cm (114px) */
+        .hc-flag {
+            position: absolute;
+            top: 0;
+            left: 10px;
+            border: 0;
+            width: 114px; /* Approx 3cm on standard screens */
+            z-index: 999;
         }
 
         header {
             text-align: center;
+            margin-top: 60px; /* Space for flag */
             margin-bottom: 20px;
+            background: rgba(251, 233, 208, 0.9);
+            padding: 15px 30px;
+            border-radius: 50px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
 
         h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             letter-spacing: 4px;
             text-transform: uppercase;
             color: var(--accent-orange);
-            margin-bottom: 10px;
         }
 
-        /* Controls */
+        /* Switch/Pill Design Controls */
         .controls {
             margin-bottom: 20px;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             flex-wrap: wrap;
             justify-content: center;
+            background: rgba(255,255,255,0.2);
+            padding: 10px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
         }
 
         button {
-            padding: 10px 20px;
-            border: 2px solid var(--deep-teal);
-            background: transparent;
+            padding: 10px 24px;
+            border: none;
+            background: var(--white);
             color: var(--deep-teal);
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-transform: uppercase;
-            border-radius: 4px;
+            border-radius: 50px; /* Pill design */
+            box-shadow: 0 4px 0px var(--dusty-brown);
+            position: relative;
+            top: 0;
         }
 
         button:hover {
-            background: var(--deep-teal);
-            color: var(--bg-cream);
+            top: -2px;
+            box-shadow: 0 6px 0px var(--dusty-brown);
+            background: var(--bg-cream);
+        }
+
+        button:active {
+            top: 2px;
+            box-shadow: 0 0px 0px var(--dusty-brown);
         }
 
         button.active {
             background: var(--accent-orange);
-            border-color: var(--accent-orange);
             color: var(--white);
+            box-shadow: 0 4px 0px #a32a1b;
         }
 
         .music-btn {
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
+            width: 50px;
+            height: 50px;
             padding: 0;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.2rem;
         }
 
         /* Sudoku Grid */
@@ -92,10 +158,12 @@
             display: grid;
             grid-template-columns: repeat(9, 45px);
             grid-template-rows: repeat(9, 45px);
-            border: 3px solid var(--deep-teal);
+            border: 5px solid var(--deep-teal);
             background-color: var(--deep-teal);
             gap: 1px;
-            box-shadow: 0 10px 30px rgba(36, 72, 85, 0.2);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+            border-radius: 8px;
+            overflow: hidden;
         }
 
         .cell {
@@ -108,21 +176,21 @@
             font-size: 1.2rem;
             cursor: pointer;
             user-select: none;
+            transition: background 0.2s;
         }
 
-        /* Grid Borders for 3x3 blocks */
-        .cell:nth-child(3n) { border-right: 2px solid var(--deep-teal); }
+        /* 3x3 block borders */
+        .cell:nth-child(3n) { border-right: 3px solid var(--deep-teal); }
         .cell:nth-child(9n) { border-right: none; }
         .cell:nth-child(n+19):nth-child(-n+27),
         .cell:nth-child(n+46):nth-child(-n+54) {
-            border-bottom: 2px solid var(--deep-teal);
+            border-bottom: 3px solid var(--deep-teal);
         }
 
         .cell.fixed {
-            background-color: #f0f0f0;
+            background-color: #eee;
             color: var(--dusty-brown);
             font-weight: bold;
-            cursor: default;
         }
 
         .cell.selected {
@@ -132,6 +200,7 @@
 
         .cell.error {
             color: var(--accent-orange);
+            background-color: #ffdce0;
         }
 
         /* Number Pad */
@@ -140,9 +209,24 @@
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 10px;
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 20px;
         }
 
-        /* Win Modal */
+        /* Footer */
+        footer {
+            margin-top: 40px;
+            padding: 20px;
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 4px rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.3);
+            width: 100%;
+            text-align: center;
+        }
+
+        /* Modal */
         #win-card {
             display: none;
             position: fixed;
@@ -151,17 +235,11 @@
             transform: translate(-50%, -50%);
             background: var(--white);
             padding: 40px;
-            border: 4px solid var(--accent-orange);
+            border: 10px solid var(--accent-orange);
             text-align: center;
-            z-index: 100;
-            box-shadow: 0 0 100px rgba(0,0,0,0.3);
-            border-radius: 8px;
-        }
-
-        #win-card h2 {
-            color: var(--accent-orange);
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            z-index: 1000;
+            box-shadow: 0 0 100px rgba(0,0,0,0.8);
+            border-radius: 30px;
         }
 
         .overlay {
@@ -171,21 +249,26 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(36, 72, 85, 0.6);
-            z-index: 90;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 998;
         }
 
         @media (max-width: 500px) {
             #grid { grid-template-columns: repeat(9, 35px); grid-template-rows: repeat(9, 35px); }
             .cell { width: 35px; height: 35px; font-size: 1rem; }
+            .hc-flag { width: 80px; }
         }
     </style>
 </head>
 <body>
 
+    <a href="https://hackclub.com/">
+        <img class="hc-flag" src="https://assets.hackclub.com/flag-orpheus-top.svg" alt="Hack Club"/>
+    </a>
+
     <header>
         <h1>Sudoku</h1>
-        <p>Clean • Logical • Prometheus Edition</p>
+        <p>Prometheus Edition</p>
     </header>
 
     <div class="controls">
@@ -193,7 +276,7 @@
         <button onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
         <button onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
         <button onclick="resetGame()">Reset</button>
-        <button class="music-btn" onclick="toggleMusic()" id="music-toggle">Mute</button>
+        <button class="music-btn" onclick="toggleMusic()" id="music-toggle">🔇</button>
     </div>
 
     <div id="grid"></div>
@@ -208,14 +291,18 @@
         <button onclick="inputNumber(7)">7</button>
         <button onclick="inputNumber(8)">8</button>
         <button onclick="inputNumber(9)">9</button>
-        <button onclick="inputNumber(0)" style="border-color: var(--accent-orange);">⌫</button>
+        <button onclick="inputNumber(0)" style="background: var(--accent-orange); color: white;">⌫</button>
     </div>
+
+    <footer>
+        By Sadrita Neogi ( Hack Club )
+    </footer>
 
     <div class="overlay" id="overlay"></div>
     <div id="win-card">
         <h2>VICTORY!</h2>
-        <p>You solved the puzzle.</p><br>
-        <button onclick="closeWinCard()">Play Again</button>
+        <p>Puzzle Master Status Achieved.</p><br>
+        <button onclick="closeWinCard()">New Game</button>
     </div>
 
     <audio id="bg-audio" loop>
@@ -234,37 +321,36 @@
             musicOn = !musicOn;
             const btn = document.getElementById('music-toggle');
             if (musicOn) {
-                audio.play();
+                audio.play().catch(e => console.log("Audio play blocked by browser"));
                 btn.innerText = "🔊";
-                btn.style.backgroundColor = "var(--muted-blue)";
+                btn.classList.add('active');
             } else {
                 audio.pause();
                 btn.innerText = "🔇";
-                btn.style.backgroundColor = "transparent";
+                btn.classList.remove('active');
             }
         }
 
         function setDifficulty(level) {
             difficulty = level;
             document.querySelectorAll('.controls button').forEach(b => b.classList.remove('active'));
-            document.getElementById('btn-' + level).classList.add('active');
+            const target = document.getElementById('btn-' + level);
+            if(target) target.classList.add('active');
             generateGame();
         }
 
         function generateGame() {
-            // Simple Sudoku Generation Logic
-            // 1. Generate full solved grid
             solution = generateSolvedGrid();
-            // 2. Remove numbers based on difficulty
-            let attempts = difficulty === 'easy' ? 30 : difficulty === 'medium' ? 45 : 55;
+            let blanks = difficulty === 'easy' ? 35 : difficulty === 'medium' ? 48 : 58;
             initialGrid = solution.map(row => [...row]);
             
-            while (attempts > 0) {
+            let count = 0;
+            while (count < blanks) {
                 let r = Math.floor(Math.random() * 9);
                 let c = Math.floor(Math.random() * 9);
                 if (initialGrid[r][c] !== 0) {
                     initialGrid[r][c] = 0;
-                    attempts--;
+                    count++;
                 }
             }
             drawGrid();
@@ -272,19 +358,19 @@
 
         function generateSolvedGrid() {
             let grid = Array(9).fill().map(() => Array(9).fill(0));
-            solve(grid);
+            solveGrid(grid);
             return grid;
         }
 
-        function solve(grid) {
+        function solveGrid(grid) {
             for (let row = 0; row < 9; row++) {
                 for (let col = 0; col < 9; col++) {
                     if (grid[row][col] === 0) {
                         let nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
                         for (let n of nums) {
-                            if (isValid(grid, row, col, n)) {
+                            if (isSafe(grid, row, col, n)) {
                                 grid[row][col] = n;
-                                if (solve(grid)) return true;
+                                if (solveGrid(grid)) return true;
                                 grid[row][col] = 0;
                             }
                         }
@@ -295,17 +381,10 @@
             return true;
         }
 
-        function isValid(grid, r, c, n) {
-            for (let i = 0; i < 9; i++) {
-                if (grid[r][i] === n || grid[i][c] === n) return false;
-            }
-            let rs = Math.floor(r / 3) * 3;
-            let cs = Math.floor(c / 3) * 3;
-            for (let i = rs; i < rs + 3; i++) {
-                for (let j = cs; j < cs + 3; j++) {
-                    if (grid[i][j] === n) return false;
-                }
-            }
+        function isSafe(grid, r, c, n) {
+            for (let i = 0; i < 9; i++) if (grid[r][i] === n || grid[i][c] === n) return false;
+            let rs = Math.floor(r / 3) * 3, cs = Math.floor(c / 3) * 3;
+            for (let i = rs; i < rs + 3; i++) for (let j = cs; j < cs + 3; j++) if (grid[i][j] === n) return false;
             return true;
         }
 
@@ -320,7 +399,11 @@
                         cell.innerText = initialGrid[r][c];
                         cell.classList.add('fixed');
                     } else {
-                        cell.addEventListener('click', () => selectCell(cell, r, c));
+                        cell.addEventListener('click', () => {
+                            if (selectedCell) selectedCell.element.classList.remove('selected');
+                            selectedCell = { element: cell, row: r, col: c };
+                            cell.classList.add('selected');
+                        });
                     }
                     cell.id = `cell-${r}-${c}`;
                     container.appendChild(cell);
@@ -328,17 +411,11 @@
             }
         }
 
-        function selectCell(cell, r, c) {
-            if (selectedCell) selectedCell.element.classList.remove('selected');
-            selectedCell = { element: cell, row: r, col: c };
-            cell.classList.add('selected');
-        }
-
         function inputNumber(num) {
             if (!selectedCell) return;
-            
             if (num === 0) {
                 selectedCell.element.innerText = '';
+                selectedCell.element.classList.remove('error');
             } else {
                 selectedCell.element.innerText = num;
                 if (num !== solution[selectedCell.row][selectedCell.col]) {
@@ -352,37 +429,30 @@
 
         function checkWin() {
             const cells = document.querySelectorAll('.cell');
-            let complete = true;
+            let win = true;
             cells.forEach(c => {
-                let [_, r, col] = c.id.split('-').map(Number);
-                if (c.innerText == "" || parseInt(c.innerText) !== solution[r][col]) {
-                    complete = false;
-                }
+                let parts = c.id.split('-');
+                let r = parseInt(parts[1]), col = parseInt(parts[2]);
+                if (parseInt(c.innerText) !== solution[r][col]) win = false;
             });
-            if (complete) {
+            if (win) {
                 document.getElementById('win-card').style.display = 'block';
                 document.getElementById('overlay').style.display = 'block';
             }
         }
 
-        function resetGame() {
-            generateGame();
-        }
-
+        function resetGame() { generateGame(); }
         function closeWinCard() {
             document.getElementById('win-card').style.display = 'none';
             document.getElementById('overlay').style.display = 'none';
             generateGame();
         }
 
-        // Handle physical keyboard
         document.addEventListener('keydown', (e) => {
             if (e.key >= 1 && e.key <= 9) inputNumber(parseInt(e.key));
             if (e.key === 'Backspace' || e.key === 'Delete') inputNumber(0);
         });
 
-        // Start game
         setDifficulty('easy');
     </script>
 </body>
-</html>
