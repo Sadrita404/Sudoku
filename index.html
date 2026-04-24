@@ -7,44 +7,50 @@
 
 <style>
 :root {
-  --bg: #f5f5f5;
-  --grid: #222;
+  --bg: #f7f9fc;
+  --grid: #2c3e50;
   --cell: #ffffff;
-  --primary: #4a90e2;
-  --text: #333;
-  --error: #ff6b6b;
+  --primary: #5b8def;
+  --primary-light: #dbe6ff;
+  --text: #2d3436;
+  --error: #ff7675;
+  --fixed: #dfe6e9;
 }
 
 body {
-  font-family: Arial, sans-serif;
+  font-family: "Segoe UI", sans-serif;
   background: var(--bg);
   margin: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 20px;
-}
-
-h1 {
-  margin-bottom: 10px;
+  padding: 30px 20px;
   color: var(--text);
 }
 
+h1 {
+  margin-bottom: 5px;
+  font-weight: 600;
+}
+
 .controls {
-  margin-bottom: 20px;
+  margin: 20px 0;
 }
 
 button {
-  padding: 8px 16px;
+  padding: 10px 18px;
   margin: 5px;
-  border: 1px solid #ccc;
+  border: none;
   background: white;
   cursor: pointer;
-  border-radius: 6px;
+  border-radius: 8px;
+  transition: 0.2s;
+  font-weight: 500;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
 }
 
 button:hover {
-  background: #eee;
+  background: var(--primary-light);
 }
 
 button.active {
@@ -54,19 +60,27 @@ button.active {
 
 #grid {
   display: grid;
-  grid-template-columns: repeat(9, 40px);
-  grid-template-rows: repeat(9, 40px);
-  border: 2px solid var(--grid);
+  grid-template-columns: repeat(9, 45px);
+  grid-template-rows: repeat(9, 45px);
+  border: 3px solid var(--grid);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .cell {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #ccc;
+  border: 1px solid #dcdde1;
   background: var(--cell);
   cursor: pointer;
   font-size: 18px;
+  transition: 0.15s;
+}
+
+.cell:hover {
+  background: #f1f3f5;
 }
 
 .cell:nth-child(3n) {
@@ -79,30 +93,36 @@ button.active {
 }
 
 .cell.fixed {
-  background: #ddd;
+  background: var(--fixed);
   font-weight: bold;
 }
 
 .cell.selected {
-  background: #cce5ff;
+  background: var(--primary);
+  color: white;
+}
+
+.cell.highlight {
+  background: var(--primary-light);
 }
 
 .cell.error {
   color: var(--error);
+  font-weight: bold;
 }
 
 .numpad {
-  margin-top: 20px;
+  margin-top: 25px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
-  width: 200px;
+  gap: 10px;
+  width: 220px;
 }
 
 footer {
-  margin-top: 20px;
-  font-size: 14px;
-  color: #777;
+  margin-top: 25px;
+  font-size: 13px;
+  color: #888;
 }
 </style>
 </head>
@@ -133,7 +153,7 @@ footer {
   <button onclick="inputNumber(0)">⌫</button>
 </div>
 
-<footer>Simple Sudoku</footer>
+<footer>Sudoku • Clean UI</footer>
 
 <script>
 let selectedCell = null;
@@ -143,7 +163,7 @@ let initialGrid = [];
 
 function setDifficulty(level) {
   difficulty = level;
-  document.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+  document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
   document.getElementById("btn-" + level).classList.add("active");
   generateGame();
 }
@@ -219,32 +239,44 @@ function drawGrid() {
         cell.innerText = initialGrid[r][c];
         cell.classList.add("fixed");
       } else {
-        cell.onclick = () => {
-          if (selectedCell) selectedCell.classList.remove("selected");
-          selectedCell = cell;
-          cell.classList.add("selected");
-        };
+        cell.onclick = () => selectCell(cell, r, c);
       }
 
-      cell.id = `cell-${r}-${c}`;
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
       gridEl.appendChild(cell);
     }
   }
 }
 
+function selectCell(cell, r, c) {
+  document.querySelectorAll(".cell").forEach(el => {
+    el.classList.remove("selected", "highlight");
+  });
+
+  selectedCell = cell;
+  cell.classList.add("selected");
+
+  document.querySelectorAll(".cell").forEach(el => {
+    if (el.dataset.row == r || el.dataset.col == c) {
+      el.classList.add("highlight");
+    }
+  });
+}
+
 function inputNumber(num) {
   if (!selectedCell) return;
 
-  let [_, r, c] = selectedCell.id.split("-");
-  r = parseInt(r);
-  c = parseInt(c);
+  let r = selectedCell.dataset.row;
+  let c = selectedCell.dataset.col;
 
   if (num === 0) {
     selectedCell.innerText = "";
     selectedCell.classList.remove("error");
   } else {
     selectedCell.innerText = num;
-    if (num !== solution[r][c]) {
+    if (num != solution[r][c]) {
       selectedCell.classList.add("error");
     } else {
       selectedCell.classList.remove("error");
@@ -256,10 +288,11 @@ function inputNumber(num) {
 function checkWin() {
   let cells = document.querySelectorAll(".cell");
   for (let c of cells) {
-    let [_, r, col] = c.id.split("-");
+    let r = c.dataset.row;
+    let col = c.dataset.col;
     if (parseInt(c.innerText) !== solution[r][col]) return;
   }
-  alert("You Win!");
+  alert("🎉 You Win!");
 }
 
 function resetGame() {
