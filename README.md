@@ -22,6 +22,8 @@
 
 **Adjustable Difficulty:** Choose between Easy, Medium, and Hard modes to clear varying amounts of the board.
 
+**Dual Input Support:** Play using the on-screen number pad or your physical keyboard with real-time error detection.
+
 ---
 
 ## Browser Support
@@ -45,3 +47,37 @@
 ---
 
 ## Project Screenshot 
+
+<img width="1446" height="720" alt="Screenshot 2026-04-25 at 8 39 43 AM" src="https://github.com/user-attachments/assets/a0f8e411-c3f1-47fc-a626-2e07239b3cae" />
+
+---
+
+<img width="697" height="673" alt="Screenshot 2026-04-25 at 8 40 16 AM" src="https://github.com/user-attachments/assets/b742a591-59c1-4cac-bd72-128a669c6520" />
+
+---
+
+<img width="607" height="670" alt="Screenshot 2026-04-25 at 8 40 53 AM" src="https://github.com/user-attachments/assets/558bd5ea-324a-4fbe-94be-ef4b211ec079" />
+
+---
+
+<img width="672" height="655" alt="Screenshot 2026-04-25 at 8 41 13 AM" src="https://github.com/user-attachments/assets/70501d79-1ca9-4f6f-850a-4c012152cccb" />
+
+
+---
+
+<img width="1158" height="706" alt="Screenshot 2026-04-25 at 8 43 37 AM" src="https://github.com/user-attachments/assets/835e7177-de76-43fe-86b2-1735979ee0e5" />
+
+
+---
+
+
+<img width="640" height="123" alt="Screenshot 2026-04-25 at 8 45 17 AM" src="https://github.com/user-attachments/assets/4848afdb-61e0-4817-a092-9207dcd6729e" />
+
+
+---
+
+### For contributing to this project, first for the repo and add additional changes to make the website more good can you make a pull request I Will surely check that and merge it.
+
+## Under Hack Club
+
+
