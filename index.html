@@ -1,393 +1,507 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>Sudoku</title>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sudoku | Under Hack Club</title>
+    <style>
+      :root {
+        --bg-cream: #fbe9d0;
+        --deep-teal: #244855;
+        --accent-orange: #e64833;
+        --dusty-brown: #874f41;
+        --muted-blue: #90aead;
+        --white: #ffffff;
+        --s: 56px;
+        --g: 10px;
+        --c: #ecd078;
+        --_l: #0000 calc(33% - 0.866 * var(--g)),
+          var(--c) calc(33.2% - 0.866 * var(--g)) 33%, #0000 34%;
+      }
 
-<style>
-:root {
-  --primary: #6c5ce7;
-  --secondary: #00cec9;
-  --accent: #fd79a8;
-  --bg: linear-gradient(135deg, #74ebd5, #acb6e5);
-  --grid: #2d3436;
-  --cell: #ffffff;
-  --text: #2d3436;
-  --error: #ff4757;
-}
+      html {
+        height: 100%;
+        background: #0b486b;
+        overflow-x: hidden;
+      }
 
-body {
-  font-family: "Segoe UI", sans-serif;
-  margin: 0;
-  min-height: 100vh;
-  background: var(--bg);
-  background-size: 200% 200%;
-  animation: bgMove 10s ease infinite;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 30px 15px;
-}
+      html:before,
+      body:before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        background: repeating-linear-gradient(var(--c) 0 var(--g), #0000 0 50%)
+            0 calc(0.866 * var(--s) - var(--g) / 2),
+          conic-gradient(from -150deg at var(--g) 50%, var(--c) 120deg, #0000 0),
+          linear-gradient(-120deg, var(--_l)),
+          linear-gradient(-60deg, var(--_l)) #0b486b;
+        background-size: var(--s) calc(3.466 * var(--s));
+        animation: p infinite 2s linear;
+      }
 
-@keyframes bgMove {
-  0% {background-position: 0% 50%;}
-  50% {background-position: 100% 50%;}
-  100% {background-position: 0% 50%;}
-}
+      body:before {
+        -webkit-mask: linear-gradient(#000 50%, #0000 0) 0
+          calc(0.866 * var(--s)) / 100% calc(3.466 * var(--s));
+        animation-direction: reverse;
+      }
 
-/* Animated Title */
-h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  background: linear-gradient(90deg, #fff, #ffeaa7, #fff);
-  background-size: 200%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  animation: shine 3s linear infinite;
-}
+      @keyframes p {
+        to {
+          background-position-x: calc(-1 * var(--s));
+        }
+      }
 
-@keyframes shine {
-  to { background-position: 200%; }
-}
+      * {
+        box-sizing: border-box;
+        font-family: "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+      }
 
-/* Floating effect */
-h1 {
-  animation: float 3s ease-in-out infinite, shine 3s linear infinite;
-}
+      body {
+        color: var(--deep-teal);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        padding: 20px;
+        position: relative;
+      }
 
-@keyframes float {
-  0%,100% { transform: translateY(0); }
-  50% { transform: translateY(-5px); }
-}
+      .hc-flag {
+        position: absolute;
+        top: 0;
+        left: 15px;
+        border: 0;
+        width: 190px;
+        z-index: 999;
+        transition: transform 0.3s ease;
+      }
 
-/* Controls */
-.controls {
-  margin: 20px 0;
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-}
+      .hc-flag:hover {
+        transform: scale(1.05);
+      }
 
-button {
-  padding: 10px 18px;
-  margin: 6px;
-  border: none;
-  border-radius: 12px;
-  background: white;
-  cursor: pointer;
-  transition: 0.2s;
-  font-weight: 600;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
+      header {
+        text-align: center;
+        margin-top: 100px;
+        margin-bottom: 25px;
+        background: rgba(251, 233, 208, 0.95);
+        padding: 20px 40px;
+        border-radius: 60px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        border: 2px solid var(--accent-orange);
+      }
 
-button:hover {
-  transform: translateY(-3px) scale(1.05);
-}
+      h1 {
+        font-size: 3rem;
+        letter-spacing: 5px;
+        text-transform: uppercase;
+        color: var(--accent-orange);
+      }
 
-button.active {
-  background: var(--primary);
-  color: white;
-}
+      .controls {
+        margin-bottom: 25px;
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+        justify-content: center;
+        background: rgba(255, 255, 255, 0.25);
+        padding: 15px;
+        border-radius: 60px;
+        backdrop-filter: blur(8px);
+      }
 
-/* Grid */
-#grid {
-  display: grid;
-  grid-template-columns: repeat(9, 50px);
-  grid-template-rows: repeat(9, 50px);
-  border: 4px solid var(--grid);
-  border-radius: 15px;
-  overflow: hidden;
-  background: rgba(255,255,255,0.25);
-  backdrop-filter: blur(10px);
-}
+      button {
+        padding: 12px 28px;
+        border: none;
+        background: var(--white);
+        color: var(--deep-teal);
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        text-transform: uppercase;
+        border-radius: 50px;
+        box-shadow: 0 5px 0px var(--dusty-brown);
+        position: relative;
+        top: 0;
+        font-size: 0.9rem;
+      }
 
-/* Cells */
-.cell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #dfe6e9;
-  background: var(--cell);
-  cursor: pointer;
-  font-size: 18px;
-  transition: 0.2s;
-}
+      button:hover {
+        top: -3px;
+        box-shadow: 0 8px 0px var(--dusty-brown);
+        background: var(--bg-cream);
+      }
 
-.cell:hover {
-  background: #f1f2ff;
-}
+      button:active {
+        top: 3px;
+        box-shadow: 0 0px 0px var(--dusty-brown);
+      }
 
-.cell.pop {
-  animation: pop 0.2s ease;
-}
+      button.active {
+        background: var(--accent-orange);
+        color: var(--white);
+        box-shadow: 0 5px 0px #a32a1b;
+      }
 
-@keyframes pop {
-  0% {transform: scale(0.8);}
-  100% {transform: scale(1);}
-}
+      #grid {
+        display: grid;
+        grid-template-columns: repeat(9, 50px);
+        grid-template-rows: repeat(9, 50px);
+        border: 6px solid var(--deep-teal);
+        background-color: var(--deep-teal);
+        gap: 1px;
+        box-shadow: 0 25px 60px rgba(0, 0, 0, 0.5);
+        border-radius: 12px;
+        overflow: hidden;
+      }
 
-.cell:nth-child(3n) {
-  border-right: 2px solid var(--grid);
-}
+      .cell {
+        width: 50px;
+        height: 50px;
+        background: var(--white);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.4rem;
+        cursor: pointer;
+        user-select: none;
+      }
 
-.cell:nth-child(n+19):nth-child(-n+27),
-.cell:nth-child(n+46):nth-child(-n+54) {
-  border-bottom: 2px solid var(--grid);
-}
+      .cell:nth-child(3n) {
+        border-right: 4px solid var(--deep-teal);
+      }
+      .cell:nth-child(9n) {
+        border-right: none;
+      }
+      .cell:nth-child(n + 19):nth-child(-n + 27),
+      .cell:nth-child(n + 46):nth-child(-n + 54) {
+        border-bottom: 4px solid var(--deep-teal);
+      }
 
-.cell.fixed {
-  background: #dfe6e9;
-  font-weight: bold;
-}
+      .cell.fixed {
+        background-color: #e8e8e8;
+        color: var(--dusty-brown);
+        font-weight: bold;
+      }
+      .cell.selected {
+        background-color: var(--muted-blue) !important;
+        color: var(--white);
+      }
+      .cell.error {
+        color: var(--accent-orange);
+        background-color: #ffdce0;
+      }
 
-.cell.selected {
-  background: var(--primary);
-  color: white;
-  box-shadow: 0 0 10px var(--primary);
-}
+      .numpad {
+        margin-top: 30px;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 12px;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 20px;
+        border-radius: 30px;
+      }
 
-.cell.highlight {
-  background: #eaeaff;
-}
+      footer {
+        margin-top: auto;
+        padding: 25px;
+        color: white;
+        font-weight: 900;
+        text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7);
+        background: rgba(0, 0, 0, 0.4);
+        width: 100%;
+        text-align: center;
+        letter-spacing: 1px;
+      }
 
-.cell.error {
-  background: #ffe5e5;
-  color: var(--error);
-  font-weight: bold;
-}
+      #win-card {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: var(--white);
+        padding: 50px;
+        border: 12px solid var(--accent-orange);
+        text-align: center;
+        z-index: 1001;
+        box-shadow: 0 0 120px rgba(0, 0, 0, 0.9);
+        border-radius: 40px;
+      }
 
-/* Numpad */
-.numpad {
-  margin-top: 25px;
-  display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 10px;
-  width: 240px;
-}
+      .overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+      }
 
-.numpad button {
-  background: linear-gradient(135deg, var(--secondary), var(--primary));
-  color: white;
-}
+      @media (max-width: 600px) {
+        #grid {
+          grid-template-columns: repeat(9, 38px);
+          grid-template-rows: repeat(9, 38px);
+        }
+        .cell {
+          width: 38px;
+          height: 38px;
+          font-size: 1.1rem;
+        }
+        .hc-flag {
+          width: 120px;
+        }
+        header {
+          margin-top: 70px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="https://hackclub.com/">
+      <img
+        class="hc-flag"
+        src="https://assets.hackclub.com/flag-orpheus-top.svg"
+        alt="Hack Club" />
+    </a>
 
-/* Win Popup */
-#winPopup {
-  position: fixed;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0);
-  background: white;
-  padding: 40px;
-  border-radius: 20px;
-  text-align: center;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-  transition: 0.3s;
-}
+    <header>
+      <h1>Sudoku</h1>
+      <p>Under Hack Club</p>
+    </header>
 
-#winPopup.show {
-  transform: translate(-50%, -50%) scale(1);
-}
+    <div class="controls">
+      <button class="game-btn" onclick="setDifficulty('easy')" id="btn-easy">
+        Easy
+      </button>
+      <button
+        class="game-btn"
+        onclick="setDifficulty('medium')"
+        id="btn-medium">
+        Medium
+      </button>
+      <button class="game-btn" onclick="setDifficulty('hard')" id="btn-hard">
+        Hard
+      </button>
+      <button class="game-btn" onclick="resetGame()">Reset</button>
+      <button class="game-btn" onclick="toggleMusic()" id="music-toggle">
+        Music Off
+      </button>
+    </div>
 
-footer {
-  margin-top: 25px;
-  color: white;
-}
-</style>
-</head>
+    <div id="grid"></div>
 
-<body>
+    <div class="numpad">
+      <button class="game-btn" onclick="inputNumber(1)">1</button>
+      <button class="game-btn" onclick="inputNumber(2)">2</button>
+      <button class="game-btn" onclick="inputNumber(3)">3</button>
+      <button class="game-btn" onclick="inputNumber(4)">4</button>
+      <button class="game-btn" onclick="inputNumber(5)">5</button>
+      <button class="game-btn" onclick="inputNumber(6)">6</button>
+      <button class="game-btn" onclick="inputNumber(7)">7</button>
+      <button class="game-btn" onclick="inputNumber(8)">8</button>
+      <button class="game-btn" onclick="inputNumber(9)">9</button>
+      <button
+        class="game-btn"
+        onclick="inputNumber(0)"
+        style="background: var(--accent-orange); color: white">
+        ⌫
+      </button>
+    </div>
 
-<h1>Sudoku</h1>
+    <footer>By Sadrita Neogi ( Hack Club )</footer>
 
-<div class="controls">
-  <button onclick="setDifficulty('easy')" id="btn-easy">Easy</button>
-  <button onclick="setDifficulty('medium')" id="btn-medium">Medium</button>
-  <button onclick="setDifficulty('hard')" id="btn-hard">Hard</button>
-  <button onclick="resetGame()">Reset</button>
-</div>
+    <div class="overlay" id="overlay"></div>
+    <div id="win-card">
+      <h2>VICTORY!</h2>
+      <p>You have conquered the grid!</p>
+      <br />
+      <button class="game-btn" onclick="closeWinCard()">New Puzzle</button>
+    </div>
 
-<div id="grid"></div>
+    <audio id="bg-audio" loop preload="auto">
+      <source src="songbg.mp3" type="audio/mpeg" />
+    </audio>
+    <audio id="click-audio" preload="auto">
+      <source src="button.mp3" type="audio/mpeg" />
+    </audio>
 
-<div class="numpad">
-  <button onclick="inputNumber(1)">1</button>
-  <button onclick="inputNumber(2)">2</button>
-  <button onclick="inputNumber(3)">3</button>
-  <button onclick="inputNumber(4)">4</button>
-  <button onclick="inputNumber(5)">5</button>
-  <button onclick="inputNumber(6)">6</button>
-  <button onclick="inputNumber(7)">7</button>
-  <button onclick="inputNumber(8)">8</button>
-  <button onclick="inputNumber(9)">9</button>
-  <button onclick="inputNumber(0)">⌫</button>
-</div>
+    <script>
+      let selectedCell = null;
+      let difficulty = "easy";
+      let solution = [];
+      let initialGrid = [];
 
-<div id="winPopup">
-  <h2>🎉 You Win!</h2>
-  <button onclick="closeWin()">Play Again</button>
-</div>
+      const audioBg = document.getElementById("bg-audio");
+      const audioClick = document.getElementById("click-audio");
+      let musicOn = false;
 
-<footer>Animated Sudoku UI</footer>
+      document.addEventListener("click", function (e) {
+        if (e.target.tagName === "BUTTON") {
+          audioClick.currentTime = 0;
+          audioClick.play().catch((err) => {});
+        }
+      });
 
-<script>
-let selectedCell = null;
-let difficulty = "easy";
-let solution = [];
-let initialGrid = [];
+      function toggleMusic() {
+        musicOn = !musicOn;
+        const btn = document.getElementById("music-toggle");
+        if (musicOn) {
+          audioBg.play().catch((e) => {});
+          btn.innerText = "Music On";
+          btn.classList.add("active");
+        } else {
+          audioBg.pause();
+          btn.innerText = "Music Off";
+          btn.classList.remove("active");
+        }
+      }
 
-function setDifficulty(level) {
-  difficulty = level;
-  document.querySelectorAll(".controls button").forEach(b => b.classList.remove("active"));
-  document.getElementById("btn-" + level).classList.add("active");
-  generateGame();
-}
+      function setDifficulty(level) {
+        difficulty = level;
+        document.querySelectorAll(".controls .game-btn").forEach((b) => {
+          if (b.id !== "music-toggle") b.classList.remove("active");
+        });
+        const target = document.getElementById("btn-" + level);
+        if (target) target.classList.add("active");
+        generateGame();
+      }
 
-function generateGame() {
-  solution = generateSolvedGrid();
-  let blanks = difficulty === "easy" ? 30 : difficulty === "medium" ? 45 : 55;
+      function generateGame() {
+        solution = generateSolvedGrid();
+        let blanks =
+          difficulty === "easy" ? 32 : difficulty === "medium" ? 46 : 56;
+        initialGrid = solution.map((row) => [...row]);
 
-  initialGrid = solution.map(row => [...row]);
-
-  let count = 0;
-  while (count < blanks) {
-    let r = Math.floor(Math.random() * 9);
-    let c = Math.floor(Math.random() * 9);
-    if (initialGrid[r][c] !== 0) {
-      initialGrid[r][c] = 0;
-      count++;
-    }
-  }
-
-  drawGrid();
-}
-
-function generateSolvedGrid() {
-  let grid = Array(9).fill().map(() => Array(9).fill(0));
-  solveGrid(grid);
-  return grid;
-}
-
-function solveGrid(grid) {
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      if (grid[r][c] === 0) {
-        let nums = [1,2,3,4,5,6,7,8,9].sort(() => Math.random() - 0.5);
-        for (let n of nums) {
-          if (isSafe(grid, r, c, n)) {
-            grid[r][c] = n;
-            if (solveGrid(grid)) return true;
-            grid[r][c] = 0;
+        let count = 0;
+        while (count < blanks) {
+          let r = Math.floor(Math.random() * 9);
+          let c = Math.floor(Math.random() * 9);
+          if (initialGrid[r][c] !== 0) {
+            initialGrid[r][c] = 0;
+            count++;
           }
         }
-        return false;
-      }
-    }
-  }
-  return true;
-}
-
-function isSafe(grid, r, c, n) {
-  for (let i = 0; i < 9; i++)
-    if (grid[r][i] === n || grid[i][c] === n) return false;
-
-  let rs = Math.floor(r/3)*3;
-  let cs = Math.floor(c/3)*3;
-
-  for (let i = rs; i < rs+3; i++)
-    for (let j = cs; j < cs+3; j++)
-      if (grid[i][j] === n) return false;
-
-  return true;
-}
-
-function drawGrid() {
-  const gridEl = document.getElementById("grid");
-  gridEl.innerHTML = "";
-
-  for (let r = 0; r < 9; r++) {
-    for (let c = 0; c < 9; c++) {
-      const cell = document.createElement("div");
-      cell.classList.add("cell");
-
-      if (initialGrid[r][c] !== 0) {
-        cell.innerText = initialGrid[r][c];
-        cell.classList.add("fixed");
-      } else {
-        cell.onclick = () => selectCell(cell, r, c);
+        drawGrid();
       }
 
-      cell.dataset.row = r;
-      cell.dataset.col = c;
-      gridEl.appendChild(cell);
-    }
-  }
-}
+      function generateSolvedGrid() {
+        let grid = Array(9)
+          .fill()
+          .map(() => Array(9).fill(0));
+        solveGrid(grid);
+        return grid;
+      }
 
-function selectCell(cell, r, c) {
-  document.querySelectorAll(".cell").forEach(el => {
-    el.classList.remove("selected", "highlight");
-  });
+      function solveGrid(grid) {
+        for (let row = 0; row < 9; row++) {
+          for (let col = 0; col < 9; col++) {
+            if (grid[row][col] === 0) {
+              let nums = [1, 2, 3, 4, 5, 6, 7, 8, 9].sort(
+                () => Math.random() - 0.5
+              );
+              for (let n of nums) {
+                if (isSafe(grid, row, col, n)) {
+                  grid[row][col] = n;
+                  if (solveGrid(grid)) return true;
+                  grid[row][col] = 0;
+                }
+              }
+              return false;
+            }
+          }
+        }
+        return true;
+      }
 
-  selectedCell = cell;
-  cell.classList.add("selected");
+      function isSafe(grid, r, c, n) {
+        for (let i = 0; i < 9; i++)
+          if (grid[r][i] === n || grid[i][c] === n) return false;
+        let rs = Math.floor(r / 3) * 3,
+          cs = Math.floor(c / 3) * 3;
+        for (let i = rs; i < rs + 3; i++)
+          for (let j = cs; j < cs + 3; j++) if (grid[i][j] === n) return false;
+        return true;
+      }
 
-  document.querySelectorAll(".cell").forEach(el => {
-    if (el.dataset.row == r || el.dataset.col == c) {
-      el.classList.add("highlight");
-    }
-  });
-}
+      function drawGrid() {
+        const container = document.getElementById("grid");
+        container.innerHTML = "";
+        for (let r = 0; r < 9; r++) {
+          for (let c = 0; c < 9; c++) {
+            const cell = document.createElement("div");
+            cell.classList.add("cell");
+            if (initialGrid[r][c] !== 0) {
+              cell.innerText = initialGrid[r][c];
+              cell.classList.add("fixed");
+            } else {
+              cell.addEventListener("click", () => {
+                if (selectedCell)
+                  selectedCell.element.classList.remove("selected");
+                selectedCell = { element: cell, row: r, col: c };
+                cell.classList.add("selected");
+                audioClick.currentTime = 0;
+                audioClick.play().catch(() => {});
+              });
+            }
+            cell.id = `cell-${r}-${c}`;
+            container.appendChild(cell);
+          }
+        }
+      }
 
-function inputNumber(num) {
-  if (!selectedCell) return;
+      function inputNumber(num) {
+        if (!selectedCell) return;
+        if (num === 0) {
+          selectedCell.element.innerText = "";
+          selectedCell.element.classList.remove("error");
+        } else {
+          selectedCell.element.innerText = num;
+          if (num !== solution[selectedCell.row][selectedCell.col]) {
+            selectedCell.element.classList.add("error");
+          } else {
+            selectedCell.element.classList.remove("error");
+            checkWin();
+          }
+        }
+      }
 
-  let r = selectedCell.dataset.row;
-  let c = selectedCell.dataset.col;
+      function checkWin() {
+        const cells = document.querySelectorAll(".cell");
+        let win = true;
+        cells.forEach((c) => {
+          let parts = c.id.split("-");
+          let r = parseInt(parts[1]),
+            col = parseInt(parts[2]);
+          if (parseInt(c.innerText) !== solution[r][col]) win = false;
+        });
+        if (win) {
+          document.getElementById("win-card").style.display = "block";
+          document.getElementById("overlay").style.display = "block";
+        }
+      }
 
-  selectedCell.classList.add("pop");
+      function resetGame() {
+        generateGame();
+      }
 
-  if (num === 0) {
-    selectedCell.innerText = "";
-    selectedCell.classList.remove("error");
-  } else {
-    selectedCell.innerText = num;
-    if (num != solution[r][c]) {
-      selectedCell.classList.add("error");
-    } else {
-      selectedCell.classList.remove("error");
-      checkWin();
-    }
-  }
+      function closeWinCard() {
+        document.getElementById("win-card").style.display = "none";
+        document.getElementById("overlay").style.display = "none";
+        generateGame();
+      }
 
-  setTimeout(() => selectedCell.classList.remove("pop"), 200);
-}
+      document.addEventListener("keydown", (e) => {
+        if (e.key >= 1 && e.key <= 9) inputNumber(parseInt(e.key));
+        if (e.key === "Backspace" || e.key === "Delete") inputNumber(0);
+      });
 
-function checkWin() {
-  let cells = document.querySelectorAll(".cell");
-  for (let c of cells) {
-    let r = c.dataset.row;
-    let col = c.dataset.col;
-    if (parseInt(c.innerText) !== solution[r][col]) return;
-  }
-  document.getElementById("winPopup").classList.add("show");
-}
-
-function closeWin() {
-  document.getElementById("winPopup").classList.remove("show");
-  generateGame();
-}
-
-function resetGame() {
-  generateGame();
-}
-
-document.addEventListener("keydown", e => {
-  if (e.key >= 1 && e.key <= 9) inputNumber(parseInt(e.key));
-  if (e.key === "Backspace") inputNumber(0);
-});
-
-setDifficulty("easy");
-</script>
-
-</body>
+      setDifficulty("easy");
+    </script>
+  </body>
 </html>
