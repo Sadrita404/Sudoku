@@ -35,9 +35,6 @@
 |Safari	|✅ Supported|
 |Mobile	| ✅ Supported|
 
----
-
-Ai Use - I have use ai to get know how to implement the matrix in the game.
 
 ---
 
