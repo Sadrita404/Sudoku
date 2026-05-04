@@ -11,6 +11,15 @@
 
 #### Sudoku is a clean, web-based puzzle game that challenges your logic with classic 9x9 grids right in your browser. With no accounts or downloads required, you can jump straight into solving puzzles with a smooth, distraction-free interface. It’s a lightweight and secure way to sharpen your ideas.
 
+---
+### Inspiration: 
+For this project, my inspiration was that I like to solve Sudoku every time I open newspaper in my home and I love to do that since childhood and that's the initial inspiration to start this project that why can't I build it for online, so I start this project.
+
+### Why I built it:
+Since as I grew up my education and all the things are getting more and more, so I couldn't give time to read newspaper as I do in my childhood, and I am losing the habit of solving Sudoku so I think that what if I can build it in an web so that I can play it whenever I open my laptop, so this is one of the reason that I started building this project and it is a little bit connected to me since I love to play Sudoku.
+
+---
+
 ## Tech Used
   |Tech Stack|
   |:--|
